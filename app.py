@@ -2,11 +2,13 @@ import datetime
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 # Activating Virtual Environment : .\venv\Scripts\Activate
 # Leave venv : deactivate
 
 app = Flask(__name__)
+CORS(app)
 
 # Creating database using SQLite
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///questify.db'
@@ -23,8 +25,6 @@ class Task(db.Model):
     description = db.Column(db.String(200))
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
-    completed = db.Column(db.Boolean, default=False)
-
 
     def __repr__(self):
         return f'Task : {self.title}'
@@ -57,7 +57,6 @@ def add_task():
         description = data.get('description'),
         latitude = data.get('latitude'),
         longitude = data.get('longitude'),
-        completed = False
     )
 
     # Add task to database
@@ -74,13 +73,14 @@ def add_task():
         "description": new_task.description,
         "latitude": new_task.latitude,
         "longitude": new_task.longitude,
-        "completed": new_task.completed
     }), 201
 
 
 # Method for retrieving all uncompleted tasks in database
 @app.route("/tasks", methods=["GET"])
 def get_tasks():
+
+    print('GETTING TASKS!!')
 
     # A Query just means asking the database for information
     # I use a query here to ask for all the task objects in the database
@@ -97,7 +97,6 @@ def get_tasks():
             "description" : task.description,
             "latitude" : task.latitude,
             "longitude" : task.longitude,
-            "completed" : task.completed
         })
 
     return jsonify(tasks_list), 200
@@ -116,7 +115,6 @@ def get_completed_tasks():
 
             'id' : i.id,
             'title' : i.title,
-            'completed' : True
         })
 
     return jsonify(completed_list), 200
@@ -200,5 +198,5 @@ if __name__ == '__main__':
 
     with app.app_context():
         db.create_all()
-    app.run(debug=True)   # Starting the server
+    app.run(debug=True, host='0.0.0.0')   # Starting the server
 

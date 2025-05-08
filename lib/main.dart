@@ -2,9 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'map.dart';
+import 'api_service.dart';
 // import 'package:provider/provider.dart';
 
+
 void main() {
+  print('testing');
   runApp(MyApp());
 }
 
@@ -29,12 +32,14 @@ class TaskPage extends StatefulWidget {
 
 class _TaskPageState extends State<TaskPage> {
 
-  List <String> tasks = ['Walk Ranger', 'DO the dishes', 'singing lessons'];
+  List <String> tasks = ['not connected to db'];
 
   // List <String> tasks = ["Drink water", "Stretch for 5 mins", "Make your bed", "Read 1 page of a book", "Take a deep breath", "Clean your desk", "Reply to 1 message", "Check calendar", "Write down 1 goal", "Do 10 push-ups", "Organize 1 folder", "Charge your phone", "Update your to-do list", "Back up your files", "Take a 5 min walk", "Clean out 1 email", "Water a plant", "Plan tomorrow", "Do 1 chore", "Clear notifications"];
   List <String> fintasks = [];
 
   List <String> locations = ["New York", "Tokyo", "Paris", "London", "Berlin", "Sydney", "Toronto", "Beijing", "Moscow", "Rome", "Cairo", "Mumbai", "Seoul", "Bangkok", "Dubai"];
+
+  final ApiService apiService = ApiService(); //Creating instance of ApiService to get json info
 
   void addTask(String task) {
     setState( () {
@@ -55,6 +60,28 @@ class _TaskPageState extends State<TaskPage> {
 
   @override
 
+  void initState() {
+    super.initState();
+    _fetchTasks();
+  }
+
+  Future<void> _fetchTasks() async {
+
+    tasks.add('Workout at THE gym');
+
+    try {
+      // Fetch tasks from app.py database
+      List<String> fetchedTasks = await ApiService.fetchTasks();
+
+      setState(() {
+        tasks = fetchedTasks;
+        print('Fetched Tasks: $tasks');
+      });
+    } catch (e) {
+      print('Error Fetching tasks');
+    }
+  }
+
   Widget build(BuildContext context) {
 
     return Scaffold(
@@ -67,7 +94,7 @@ class _TaskPageState extends State<TaskPage> {
           
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Text('Test App Interface'),
+              child: Text('Testing App Interface'),
             ),
             
             TaskList(
